@@ -1,0 +1,8 @@
+
+
+POST http://localhost:3001/api/v1/ask
+Content-Type: application/json
+
+{
+    "message": "What to do if I have splinters?"
+}

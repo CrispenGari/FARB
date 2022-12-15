@@ -1,0 +1,28 @@
+@import url(https://fonts.googleapis.com/css?family=Trirong);
+html,
+body {
+  padding: 0;
+  margin: 0;
+  --main-color: #cabfab;
+  --color-gray: #dfd8c8;
+  --color-dark: #41444b;
+  --color-dark-gray: #52575d;
+  font-family: "Trirong", sans-serif !important;
+}
+body {
+  background-color: var(--color-gray);
+}
+
+button {
+  font-weight: unset !important;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
