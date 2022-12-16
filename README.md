@@ -19,10 +19,10 @@
 1. mobile
 
 <p align="center">
-<img src="1.jpeg" alt="cover" width="200"/>
-<img src="2.jpeg" alt="cover" width="200"/>
-<img src="3.jpeg" alt="cover" width="200"/>
-<img src="0.jpeg" alt="cover" width="200"/>
+<img src="mobile0.jpeg" alt="cover" width="200"/>
+<img src="mobile1.jpeg" alt="cover" width="200"/>
+<img src="mobile2.jpeg" alt="cover" width="200"/>
+
 <p>
 
 2. web

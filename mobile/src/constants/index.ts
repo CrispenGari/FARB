@@ -1,4 +1,4 @@
-export const uri = "https://3dc4-197-98-127-119.ngrok.io/graphql";
+export const uri = "https://2bd6-41-114-160-61.ngrok.io/graphql";
 
 export const COLORS = {
   main: "#CABFAB",
@@ -6,7 +6,7 @@ export const COLORS = {
   dark: "#41444B",
   darkGray: "#52575D",
 };
-
+export const SET_NEW_MESSAGE = "SET_NEW_MESSAGE";
 export const FONTS = {
   NunitoSansItalic: "NunitoSansItalic",
   NunitoSansBlack: "NunitoSansBlack",

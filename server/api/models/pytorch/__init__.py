@@ -33,7 +33,7 @@ class FARBModel(nn.Module):
         cat = self.dropout(torch.cat(pooled, dim = 1))
         return self.out(cat)
      
-print(" ✅ LOADING PYTORCH FAB MODEL!\n") 
+print(" ✅ LOADING PYTORCH FARB MODEL!\n") 
 INPUT_DIM = len(stoi) 
 EMBEDDING_DIM = 100
 OUTPUT_DIM = len(labels_dict)
@@ -49,6 +49,6 @@ farb_model = FARBModel(
      
 farb_model.load_state_dict(torch.load(PYTORCH_FARB_MODEL_PATH, 
                                      map_location=device))
-print(" ✅ LOADING PYTORCH FAB MODEL DONE!\n")
+print(" ✅ LOADING PYTORCH FARB MODEL DONE!\n")
 
 

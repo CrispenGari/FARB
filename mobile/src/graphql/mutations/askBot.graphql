@@ -1,0 +1,5 @@
+mutation AskBot($input: AskBotInput!) {
+  askBot(input: $input) {
+    ...AskBotResponse
+  }
+}

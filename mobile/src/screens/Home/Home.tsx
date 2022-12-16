@@ -2,142 +2,101 @@ import {
   View,
   Text,
   StatusBar,
-  Image,
-  TouchableOpacity,
   SafeAreaView,
-  Alert,
-  ImageBackground,
+  Image,
+  ScrollView,
+  Keyboard,
+  KeyboardAvoidingView,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { COLORS, FONTS } from "../../constants";
-import { Ionicons, AntDesign } from "@expo/vector-icons";
-import { useMediaPermissions } from "../../hooks";
-import * as ImagePicker from "expo-image-picker";
-import * as Camera from "expo-camera";
-import { useClassifyAnimalMutation } from "../../graphql/generated/graphql";
-import Requesting from "../../components/Requesting/Requesting";
-import { generateRNFile } from "../../utils";
+
 import { AppNavProps } from "../../params";
+import { useHeaderHeight } from "@react-navigation/elements";
+import { useDispatch, useSelector } from "react-redux";
+import { StateType } from "../../types";
+import { Message } from "../../components";
+import { setNewMessage } from "../../actions";
+import { useAskBotMutation } from "../../graphql/generated/graphql";
 const Home: React.FunctionComponent<AppNavProps<"Home">> = ({ navigation }) => {
-  const { camera, library } = useMediaPermissions();
-  const [image, setImage] = useState(null);
-  const [predict, { loading, data }] = useClassifyAnimalMutation({
+  const height = useHeaderHeight();
+  const messages = useSelector(({ messages }: StateType) => messages);
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerStyle: {
+        backgroundColor: COLORS.dark,
+        height: 120,
+      },
+      headerTitle: "FAR Bot",
+      headerTitleStyle: {
+        color: "white",
+        fontFamily: FONTS.NunitoSansRegular,
+        letterSpacing: 2,
+      },
+      headerLeft: () => (
+        <Image
+          source={{
+            uri: Image.resolveAssetSource(
+              require("../../../assets/logo-header.png")
+            ).uri,
+          }}
+          style={{
+            width: 40,
+            height: 40,
+          }}
+        />
+      ),
+      headerLeftContainerStyle: {
+        paddingLeft: 20,
+      },
+    });
+  }, []);
+
+  const [message, setMessage] = React.useState<string>("");
+
+  const [_askBot, { loading, data }] = useAskBotMutation({
     fetchPolicy: "network-only",
   });
-  const openCamera = async () => {
-    if (!camera) {
-      Alert.alert(
-        "AIR",
-        "AIR tool does not have permission to access your camera.",
-        [
-          {
-            style: "default",
-            text: "Allow Permission",
-            onPress: async () => {
-              await Camera.requestCameraPermissionsAsync();
-              return;
-            },
-          },
-          {
-            style: "destructive",
-            text: "CANCEL",
-            onPress: () => {},
-          },
-        ]
-      );
-      return;
-    }
-    const { assets, canceled } = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      base64: false,
-      quality: 1,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: false,
-    });
+  const dispatch = useDispatch();
 
-    if (!canceled) {
-      setImage({
-        uri: assets[0].uri,
-        name: assets[0].fileName,
-      });
-    }
-  };
-  const selectImage = async () => {
-    if (!library) {
-      Alert.alert(
-        "AIR",
-        "AIR tool does not have permission to access your photos.",
-        [
-          {
-            style: "default",
-            text: "Allow Access to all Photos",
-            onPress: async () => {
-              await ImagePicker.requestMediaLibraryPermissionsAsync();
-              return;
-            },
-          },
-          {
-            style: "destructive",
-            text: "CANCEL",
-            onPress: () => {},
-          },
-        ]
-      );
-      return;
-    }
+  const scrollViewRef = useRef<React.LegacyRef<ScrollView> | any>();
 
-    const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      base64: false,
-      quality: 1,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: false,
-    });
-
-    if (!canceled) {
-      setImage({
-        uri: assets[0].uri,
-        name: assets[0].fileName,
-      });
-    }
-  };
-
-  const recognizeImage = async () => {
-    if (!!!image) {
-      Alert.alert("AIR", "please select an image with text first.", [
-        {
-          style: "destructive",
-          text: "CANCEL",
-          onPress: () => {},
-        },
-      ]);
-      return;
-    }
-
-    const _image = generateRNFile(image);
-    await predict({
+  const askBot = async () => {
+    await dispatch(
+      setNewMessage({
+        message,
+        sender: "human",
+      })
+    );
+    await _askBot({
       variables: {
         input: {
-          image: _image,
+          message,
         },
       },
     });
   };
 
   React.useEffect(() => {
-    let mounted = true;
-    if (mounted && !!data?.predictAnimal?.prediction) {
-      navigation.navigate("Details", {
-        image,
-        prediction: data.predictAnimal.prediction,
-      });
+    let mounted: boolean = true;
+    if (mounted && data?.askBot?.success) {
+      setMessage("");
+      dispatch(
+        setNewMessage({
+          message: data?.askBot.response?.message ?? "",
+          sender: "bot",
+        })
+      );
     }
     return () => {
       mounted = false;
     };
-  }, [data]);
+  }, [data, dispatch]);
   return (
     <View
       style={{
@@ -145,166 +104,113 @@ const Home: React.FunctionComponent<AppNavProps<"Home">> = ({ navigation }) => {
         backgroundColor: COLORS.main,
       }}
     >
-      {loading ? <Requesting /> : null}
       <StatusBar barStyle={"light-content"} />
-      <SafeAreaView style={{ flex: 1 }}>
-        <View
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView
           style={{
-            marginBottom: 30,
-            flex: 0.8,
+            flex: 1,
           }}
         >
-          {!!!image ? (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={selectImage}
-              style={{
-                width: "100%",
-                height: "70%",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: COLORS.naive,
-              }}
-            >
-              <ImageBackground
+          <ScrollView
+            style={{
+              marginBottom: 30,
+              flex: 1,
+              padding: 10,
+              height: Dimensions.get("screen").height - 200,
+            }}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            ref={scrollViewRef}
+            onContentSizeChange={() =>
+              scrollViewRef.current.scrollToEnd({ animated: true })
+            }
+          >
+            {messages.length === 0 ? (
+              <Text
                 style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
                   padding: 10,
-                  width: Dimensions.get("screen").width,
-                }}
-                source={{
-                  uri: Image.resolveAssetSource(
-                    require("../../../assets/cover.jpg")
-                  ).uri,
+                  textAlign: "center",
+                  fontFamily: FONTS.NunitoSansRegular,
+                  letterSpacing: 2,
+                  fontSize: 20,
                 }}
               >
-                <Text
-                  style={{
-                    padding: 10,
-                    textAlign: "center",
-                    color: COLORS.main,
-                    fontFamily: FONTS.NunitoSansBlack,
-                    fontSize: 20,
-                    letterSpacing: 2,
-                  }}
-                >
-                  Select Image Or Take a photo.
-                </Text>
-              </ImageBackground>
-            </TouchableOpacity>
-          ) : (
-            <Image
-              source={{
-                uri: image?.uri,
-              }}
-              style={{
-                width: "100%",
-                height: "70%",
-                resizeMode: "contain",
-              }}
-            />
-          )}
-          <Text
-            style={{
-              padding: 10,
-              textAlign: "center",
-              color: "white",
-              fontFamily: FONTS.NunitoSansRegular,
-            }}
-          >
-            Choose an image of an animal or take a new one.
-          </Text>
-          <View
-            style={{
-              margin: 10,
-              padding: 20,
-              backgroundColor: COLORS.naive,
-              borderRadius: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-evenly",
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                backgroundColor: COLORS.orange,
-                padding: 10,
-                width: 50,
-                height: 50,
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 50,
-              }}
-              activeOpacity={0.7}
-              onPress={openCamera}
-            >
-              <Ionicons name="camera" size={24} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor: COLORS.orange,
-                padding: 10,
-                width: 50,
-                height: 50,
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 50,
-              }}
-              activeOpacity={0.7}
-              onPress={selectImage}
-            >
-              <AntDesign name="picture" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-        </View>
+                No messages, ask the Bot about First Aid Recommendation ONLY.
+              </Text>
+            ) : (
+              messages.map((message, index) => (
+                <Message message={message} key={index} />
+              ))
+            )}
 
-        <View
-          style={{
-            justifyContent: "space-between",
-            flex: 0.2,
-            width: "100%",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity
-            onPress={recognizeImage}
+            {loading && (
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: FONTS.NunitoSansItalic,
+                  textAlign: "right",
+                  width: "100%",
+                }}
+              >
+                bot typing...
+              </Text>
+            )}
+            <View style={{ height: 100 }} />
+          </ScrollView>
+          <KeyboardAvoidingView
             style={{
-              marginVertical: 30,
-              backgroundColor: COLORS.orange,
-              width: "90%",
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 999,
+              flexDirection: "row",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
             }}
-            activeOpacity={0.7}
+            keyboardVerticalOffset={height + 20}
+            behavior="padding"
+            enabled
           >
-            <Text
+            <TextInput
+              multiline
+              editable={!loading}
+              onSubmitEditing={askBot}
+              value={message}
+              onChangeText={(text) => setMessage(text)}
               style={{
-                color: "white",
+                backgroundColor: "white",
+                flex: 1,
+                padding: 10,
+                height: 50,
+                fontSize: 16,
                 fontFamily: FONTS.NunitoSansRegular,
-                letterSpacing: 2,
-                fontSize: 20,
+                borderRadius: 5,
+                marginHorizontal: 10,
               }}
+              placeholder="Ask anything to the First Aid Bot"
+            />
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={{
+                backgroundColor: COLORS.dark,
+                marginRight: 10,
+                padding: 10,
+                borderRadius: 5,
+                width: 100,
+                alignItems: "center",
+              }}
+              disabled={!!!messages || loading}
+              onPress={askBot}
             >
-              RECOGNIZE
-            </Text>
-          </TouchableOpacity>
-          <Text
-            style={{
-              margin: 20,
-              color: "white",
-              textAlign: "center",
-              fontFamily: FONTS.NunitoSansItalic,
-            }}
-          >
-            AI tool developed by @crispengari.
-          </Text>
-        </View>
-      </SafeAreaView>
+              <Text
+                style={{
+                  color: "white",
+                  fontFamily: FONTS.NunitoSansRegular,
+                }}
+              >
+                Send
+              </Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </View>
   );
 };

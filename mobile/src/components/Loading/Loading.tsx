@@ -32,7 +32,7 @@ const Loading = () => {
           marginTop: 30,
         }}
       >
-        Animal Image Recognition
+        First Aid Recommendation Bot
       </Text>
     </View>
   );

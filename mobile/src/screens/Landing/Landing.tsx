@@ -1,8 +1,9 @@
 import { View, Text, TouchableOpacity, StatusBar, Image } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "../../constants";
+import { AppNavProps } from "../../params";
 
-const Landing = ({ navigation }) => {
+const Landing: React.FC<AppNavProps<"Landing">> = ({ navigation }) => {
   return (
     <View
       style={{
@@ -29,9 +30,10 @@ const Landing = ({ navigation }) => {
             letterSpacing: 3,
             fontSize: 30,
             marginBottom: 30,
+            textAlign: "center",
           }}
         >
-          AIR Tool
+          First Aid Recommendation Bot
         </Text>
         <Image
           source={{
@@ -51,9 +53,8 @@ const Landing = ({ navigation }) => {
             fontFamily: FONTS.NunitoSansRegular,
           }}
         >
-          Animal Image Recognition (AIR) is a mobile AI tool for basic image
-          classification based on 10 animals from images in real time. (If you
-          don't like animals don't open this app.)
+          Welcome to the First Aid Recommendation Bot (FARB). If you trust this
+          bot in giving you First Aid suggestions click Start Chatting Button
         </Text>
       </View>
       <View
@@ -66,11 +67,11 @@ const Landing = ({ navigation }) => {
       >
         <TouchableOpacity
           onPress={() => {
-            navigation.replace("Home", {});
+            navigation.replace("Home");
           }}
           style={{
             marginVertical: 30,
-            backgroundColor: COLORS.blue,
+            backgroundColor: COLORS.dark,
             width: "90%",
             paddingHorizontal: 20,
             paddingVertical: 15,
@@ -88,7 +89,7 @@ const Landing = ({ navigation }) => {
               fontSize: 20,
             }}
           >
-            open tool
+            Start Chat
           </Text>
         </TouchableOpacity>
         <Text
@@ -99,7 +100,7 @@ const Landing = ({ navigation }) => {
             fontFamily: FONTS.NunitoSansItalic,
           }}
         >
-          AI tool developed by @crispengari.
+          Copyright © 2022 Crispen AI Tools Inc. All rights reserved
         </Text>
       </View>
     </View>

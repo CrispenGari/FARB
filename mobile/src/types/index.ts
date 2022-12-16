@@ -1,6 +1,13 @@
+export interface ActionType<T> {
+  payload: T;
+  type: string;
+}
 
+export interface StateType {
+  messages: MessageType[];
+}
 
-export interface ImageType{
-    name: string,
-    uri: string
+export interface MessageType {
+  message: string;
+  sender: "bot" | "human";
 }

@@ -1,9 +1,7 @@
-import { createUploadLink } from "apollo-upload-client";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { uri } from "../constants";
-const link = createUploadLink({ uri });
-const client = new ApolloClient({
-  link,
+export const client = new ApolloClient({
+  uri,
   cache: new InMemoryCache(),
 });
 

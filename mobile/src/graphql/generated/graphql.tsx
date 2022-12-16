@@ -13,18 +13,31 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Upload: any;
 };
 
-export type AnimalInput = {
-  image: Scalars['Upload'];
+export type AskBotInput = {
+  message: Scalars['String'];
 };
 
-export type AnimalPredictionResponse = {
-  __typename?: 'AnimalPredictionResponse';
+export type AskBotResponse = {
+  __typename?: 'AskBotResponse';
   error?: Maybe<Error>;
-  ok: Scalars['Boolean'];
-  prediction?: Maybe<Prediction>;
+  prediction?: Maybe<BotPrediction>;
+  response?: Maybe<BotResponse>;
+  success: Scalars['Boolean'];
+};
+
+export type BotPrediction = {
+  __typename?: 'BotPrediction';
+  confidence: Scalars['Float'];
+  pattern: Scalars['String'];
+  tag: Scalars['String'];
+  tagId: Scalars['Int'];
+};
+
+export type BotResponse = {
+  __typename?: 'BotResponse';
+  message: Scalars['String'];
 };
 
 export type Error = {
@@ -33,8 +46,8 @@ export type Error = {
   message: Scalars['String'];
 };
 
-export type MetaResponse = {
-  __typename?: 'MetaResponse';
+export type Meta = {
+  __typename?: 'Meta';
   description: Scalars['String'];
   language: Scalars['String'];
   libraries: Array<Scalars['String']>;
@@ -44,44 +57,33 @@ export type MetaResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  predictAnimal: AnimalPredictionResponse;
+  askBot: AskBotResponse;
 };
 
 
-export type MutationPredictAnimalArgs = {
-  input: AnimalInput;
-};
-
-export type Predicted = {
-  __typename?: 'Predicted';
-  className: Scalars['String'];
-  label: Scalars['Int'];
-  probability: Scalars['Float'];
-};
-
-export type Prediction = {
-  __typename?: 'Prediction';
-  predictions: Array<Predicted>;
-  topPrediction: Predicted;
+export type MutationAskBotArgs = {
+  input: AskBotInput;
 };
 
 export type Query = {
   __typename?: 'Query';
-  meta: MetaResponse;
+  meta: Meta;
 };
+
+export type AskBotResponseFragment = { __typename?: 'AskBotResponse', success: boolean, error?: { __typename?: 'Error', field: string, message: string } | null, response?: { __typename?: 'BotResponse', message: string } | null, prediction?: { __typename?: 'BotPrediction', confidence: number, tag: string, tagId: number, pattern: string } | null };
+
+export type BotPredictionFragmentFragment = { __typename?: 'BotPrediction', confidence: number, tag: string, tagId: number, pattern: string };
+
+export type BotResponseFragmentFragment = { __typename?: 'BotResponse', message: string };
 
 export type ErrorFragmentFragment = { __typename?: 'Error', field: string, message: string };
 
-export type PredictedFragmentFragment = { __typename?: 'Predicted', label: number, probability: number, className: string };
-
-export type PredictionFragmentFragment = { __typename?: 'Prediction', predictions: Array<{ __typename?: 'Predicted', label: number, probability: number, className: string }>, topPrediction: { __typename?: 'Predicted', label: number, probability: number, className: string } };
-
-export type ClassifyAnimalMutationVariables = Exact<{
-  input: AnimalInput;
+export type AskBotMutationVariables = Exact<{
+  input: AskBotInput;
 }>;
 
 
-export type ClassifyAnimalMutation = { __typename?: 'Mutation', predictAnimal: { __typename?: 'AnimalPredictionResponse', ok: boolean, error?: { __typename?: 'Error', field: string, message: string } | null, prediction?: { __typename?: 'Prediction', predictions: Array<{ __typename?: 'Predicted', label: number, probability: number, className: string }>, topPrediction: { __typename?: 'Predicted', label: number, probability: number, className: string } } | null } };
+export type AskBotMutation = { __typename?: 'Mutation', askBot: { __typename?: 'AskBotResponse', success: boolean, error?: { __typename?: 'Error', field: string, message: string } | null, response?: { __typename?: 'BotResponse', message: string } | null, prediction?: { __typename?: 'BotPrediction', confidence: number, tag: string, tagId: number, pattern: string } | null } };
 
 export const ErrorFragmentFragmentDoc = gql`
     fragment ErrorFragment on Error {
@@ -89,63 +91,68 @@ export const ErrorFragmentFragmentDoc = gql`
   message
 }
     `;
-export const PredictedFragmentFragmentDoc = gql`
-    fragment PredictedFragment on Predicted {
-  label
-  probability
-  className
+export const BotResponseFragmentFragmentDoc = gql`
+    fragment BotResponseFragment on BotResponse {
+  message
 }
     `;
-export const PredictionFragmentFragmentDoc = gql`
-    fragment PredictionFragment on Prediction {
-  predictions {
-    ...PredictedFragment
-  }
-  topPrediction {
-    ...PredictedFragment
-  }
+export const BotPredictionFragmentFragmentDoc = gql`
+    fragment BotPredictionFragment on BotPrediction {
+  confidence
+  tag
+  tagId
+  pattern
 }
-    ${PredictedFragmentFragmentDoc}`;
-export const ClassifyAnimalDocument = gql`
-    mutation ClassifyAnimal($input: AnimalInput!) {
-  predictAnimal(input: $input) {
-    ok
-    error {
-      ...ErrorFragment
-    }
-    prediction {
-      ...PredictionFragment
-    }
+    `;
+export const AskBotResponseFragmentDoc = gql`
+    fragment AskBotResponse on AskBotResponse {
+  error {
+    ...ErrorFragment
+  }
+  success
+  response {
+    ...BotResponseFragment
+  }
+  prediction {
+    ...BotPredictionFragment
   }
 }
     ${ErrorFragmentFragmentDoc}
-${PredictionFragmentFragmentDoc}`;
-export type ClassifyAnimalMutationFn = Apollo.MutationFunction<ClassifyAnimalMutation, ClassifyAnimalMutationVariables>;
+${BotResponseFragmentFragmentDoc}
+${BotPredictionFragmentFragmentDoc}`;
+export const AskBotDocument = gql`
+    mutation AskBot($input: AskBotInput!) {
+  askBot(input: $input) {
+    ...AskBotResponse
+  }
+}
+    ${AskBotResponseFragmentDoc}`;
+export type AskBotMutationFn = Apollo.MutationFunction<AskBotMutation, AskBotMutationVariables>;
 
 /**
- * __useClassifyAnimalMutation__
+ * __useAskBotMutation__
  *
- * To run a mutation, you first call `useClassifyAnimalMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useClassifyAnimalMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useAskBotMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAskBotMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [classifyAnimalMutation, { data, loading, error }] = useClassifyAnimalMutation({
+ * const [askBotMutation, { data, loading, error }] = useAskBotMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useClassifyAnimalMutation(baseOptions?: Apollo.MutationHookOptions<ClassifyAnimalMutation, ClassifyAnimalMutationVariables>) {
+export function useAskBotMutation(baseOptions?: Apollo.MutationHookOptions<AskBotMutation, AskBotMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ClassifyAnimalMutation, ClassifyAnimalMutationVariables>(ClassifyAnimalDocument, options);
+        return Apollo.useMutation<AskBotMutation, AskBotMutationVariables>(AskBotDocument, options);
       }
-export type ClassifyAnimalMutationHookResult = ReturnType<typeof useClassifyAnimalMutation>;
-export type ClassifyAnimalMutationResult = Apollo.MutationResult<ClassifyAnimalMutation>;
-export type ClassifyAnimalMutationOptions = Apollo.BaseMutationOptions<ClassifyAnimalMutation, ClassifyAnimalMutationVariables>;
+export type AskBotMutationHookResult = ReturnType<typeof useAskBotMutation>;
+export type AskBotMutationResult = Apollo.MutationResult<AskBotMutation>;
+export type AskBotMutationOptions = Apollo.BaseMutationOptions<AskBotMutation, AskBotMutationVariables>;
 
       export interface PossibleTypesResultData {
         possibleTypes: {

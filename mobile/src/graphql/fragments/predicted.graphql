@@ -1,5 +1,0 @@
-fragment PredictedFragment on Predicted {
-  label
-  probability
-  className
-}

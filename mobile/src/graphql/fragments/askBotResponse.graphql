@@ -1,0 +1,12 @@
+fragment AskBotResponse on AskBotResponse {
+  error {
+    ...ErrorFragment
+  }
+  success
+  response {
+    ...BotResponseFragment
+  }
+  prediction {
+    ...BotPredictionFragment
+  }
+}

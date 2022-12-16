@@ -1,14 +1,7 @@
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RouteProp } from "@react-navigation/native";
-import { Prediction } from "../graphql/generated/graphql";
-import { ImageType } from "../types";
-
+import { RouteProp } from "@react-navigation/core";
 // App Param Lists
 export type AppParamsList = {
-  Details: {
-    prediction: Prediction;
-    image: ImageType;
-  };
   Landing: undefined;
   Home: undefined;
 };
